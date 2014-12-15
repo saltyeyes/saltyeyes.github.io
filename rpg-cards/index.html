@@ -1,0 +1,349 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>RPG cards</title>
+    <meta charset="UTF-8">
+    <!-- Library: jQuery -->
+    <script type="text/javascript" src="lib/jquery/jquery.min.js" charset="utf-8"></script>
+    <!-- Library: Bootstrap -->
+    <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap-theme.min.css" />
+    <!-- Library: Bootstrap typeahead -->
+    <script type="text/javascript" src="lib/typeahead/bootstrap3-typeahead.min.js" charset="utf-8"></script>
+    <!-- Library: Color picker -->
+    <link href="lib/colorpicker/css/bootstrap-colorselector.css" rel="stylesheet" />
+    <script type="text/javascript" src="lib/colorpicker/js/bootstrap-colorselector.js" charset="utf-8"></script>
+    <!-- Library: Query builder -->
+    <link href="lib/query-builder/css/query-builder.min.css" rel="stylesheet" />
+    <script type="text/javascript" src="lib/query-builder/js/query-builder.min.js" charset="utf-8"></script>
+    <!-- Data -->
+    <script type="text/javascript" src="data/card_data_example.js"></script>
+    <!-- Javascript -->
+    <script type="text/javascript" src="js/cards.js"></script>
+    <script type="text/javascript" src="js/colors.js"></script>
+    <script type="text/javascript" src="js/icons.js"></script>
+    <script type="text/javascript" defer src="js/ui.js"></script>
+    <!-- CSS -->
+    <link href="css/ui.css" rel="stylesheet" />
+    <link href="css/cards.css" rel="stylesheet" />
+    <link href="css/card-size.css" rel="stylesheet" />
+    <link href="css/icons.css" rel="stylesheet" />
+    <link href="css/custom-icons.css" rel="stylesheet" />
+    <!-- Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Lora:700' rel='stylesheet' type='text/css'>
+</head>
+<body>
+    <div class="container-fluid">
+        <!--<h1 class="page-header">RPG card generator</h1>-->
+        <div class="row">
+            <div class="alert alert-warning alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <strong>Warning!</strong>
+                Some RPG systems are protected by copyright.
+                Even if some spell/item data is freely available, it does not mean you may redistribute cards containing such data.
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-lg-3">
+                <!--<h3>Menu</h3>-->
+                <form style="display:none" id="file-load-form">
+                    <input type="file" id="file-load" name="files[]" multiple class="form-control" style="display:none" />
+                </form>
+                <form role="form" class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-info btn-block" id="button-help">Open Help</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-danger btn-block" id="button-clear">Delete all</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-block" id="button-load-sample">Load sample</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-block" id="button-load">Load from file</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-block" id="button-sort-name">Sort by name</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-block" id="button-save" onclick="ui_save_file()">Save to file</button>
+                            <a href="" download="rpg_cards.json" id="file-save-link" style="display:none">Hidden download link</a>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-block" id="button-sort-icon">Sort by icon</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-success btn-block" id="button-generate">Generate</button>
+                        </div>
+                    </div>
+                    <!--<span class="help-block">Generated cards open in a new tab or window.</span>-->
+                </form>
+                <h3>Page settings</h3>
+                <form role="form" class="form-horizontal">
+                    <div class="form-group">
+                        <label for="page-size" class="col-sm-4 control-label">Page Size</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="page-size" data-option="page_size">
+                                <option value="A4" selected>A4</option>
+                                <option value="Letter">US letter</option>
+                                <option value="25x35">2.5&quot; x 3.5&quot;</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-size" class="col-sm-4 control-label">Card Size</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="card-size" data-option="card_size">
+                                <option value="225x35">2.25&quot; x 3.5&quot; (Bridge)</option>
+                                <option value="25x35" selected>2.5&quot; x 3.5&quot; (Poker)</option>
+                                <option value="35x50">3.5&quot; x 5.0&quot;</option>
+                                <option value="75x50">7.5&quot; x 5.0&quot;</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-size" class="col-sm-4 control-label">Cards/page</label>
+                        <div class="col-sm-3">
+                            <input type="text" id="page-rows" class="form-control" data-option="page_rows" value="3">
+                        </div>
+                        <div class="col-sm-2">
+                            <p class="form-control-static">x</p>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" id="page-columns" class="form-control" data-option="page_columns" value="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-arrangement" class="col-sm-4 control-label">Arrangement</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="card-arrangement" data-option="card_arrangement">
+                                <option value="doublesided" selected>Double sided printing</option>
+                                <option value="front_only">Front side only</option>
+                                <option value="side_by_side">Side by side</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="foreground-color" class="col-sm-4 control-label">Front color</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <select id="foreground_color_selector" class="colorselector-data"></select>
+                                <input type="text" id="foreground-color" class="form-control" placeholder="Front page color" data-property="color" value="white">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="background-color" class="col-sm-4 control-label">Back color</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <select id="background_color_selector" class="colorselector-data"></select>
+                                <input type="text" id="background-color" class="form-control" placeholder="Back page color" data-property="color" value="white">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <h3>Default values</h3>
+                <form role="form" class="form-horizontal">
+                    <div class="form-group">
+                        <label for="small-icons" class="col-sm-2 control-label">Icon</label>
+                        <div class="col-sm-10">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" checked id="small-icons"> Use small front icons
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="default-color" class="col-sm-2 control-label">Color</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <select id="default_color_selector" class="colorselector-data"></select>
+                                <input type="text" id="default-color" class="form-control" placeholder="Card color" data-property="color" value="black">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="default-icon" class="col-sm-2 control-label">Icon</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default icon-select-button" type="button">Search</button>
+                                </span>
+                                <input type="text" id="default-icon" class="form-control icon-list" placeholder="Icon name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="default-title-size" class="col-sm-2 control-label">Title</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="default-title-size">
+                                <option value="16">16pt font</option>
+                                <option value="15">15pt font</option>
+                                <option value="14">14pt font</option>
+                                <option value="13" selected>13pt font</option>
+                                <option value="12">12pt font</option>
+                                <option value="11">11pt font</option>
+                                <option value="10">10pt font</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-block" id="button-apply-color">Apply color</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-block" id="button-apply-font">Apply title font</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-block" id="button-apply-icon">Apply icon</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-primary btn-block" id="button-apply-icon-back">Apply back icon</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-12 col-lg-5">
+                <!--<h3>Card</h3>-->
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="selected-card" class="col-sm-2 control-label">Deck</label>
+                        <div class="col-sm-10">
+                            <p class="form-control-static" id="total_card_count">Deck contains 0 cards.</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="selected-card" class="col-sm-2 control-label">Card</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="selected-card"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"></label>
+                        <div class="col-sm-4">
+                            <button type="button" class="btn btn-danger btn-block" id="button-delete-card">Delete card</button>
+                        </div>
+                        <div class="col-sm-3">
+                            <button type="button" class="btn btn-primary btn-block" id="button-add-card">Add new card</button>
+                        </div>
+                        <div class="col-sm-3">
+                            <button type="button" class="btn btn-primary btn-block" id="button-duplicate-card">Duplicate card</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-title" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="card-title" class="form-control" placeholder="Title">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-title-size" class="col-sm-2 control-label">Title</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="card-title-size" data-property="title_size">
+                                <option value="" selected>default font</option>
+                                <option value="16">16pt font</option>
+                                <option value="15">15pt font</option>
+                                <option value="14">14pt font</option>
+                                <option value="13">13pt font</option>
+                                <option value="12">12pt font</option>
+                                <option value="11">11pt font</option>
+                                <option value="10">10pt font</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-count" class="col-sm-2 control-label">Count</label>
+                        <div class="col-sm-10">
+                            <input type="number" id="card-count" class="form-control" placeholder="Count" data-property="count" value="1">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-icon" class="col-sm-2 control-label">Icon</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default icon-select-button" type="button">Search</button>
+                                </span>
+                                <input type="text" id="card-icon" class="form-control icon-list" placeholder="Default icon" data-property="icon">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-icon-back" class="col-sm-2 control-label">Back icon</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default icon-select-button" type="button">Search</button>
+                                </span>
+                                <input type="text" id="card-icon-back" class="form-control icon-list" placeholder="Same as front" data-property="icon_back">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-color" class="col-sm-2 control-label">Color</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <select id="card_color_selector" class="colorselector-data"></select>
+                                <input type="text" id="card-color" class="form-control" placeholder="Default color" data-property="color">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-contents" class="col-sm-2 control-label">Contents</label>
+                        <div class="col-sm-10">
+                            <div id="card-contents">
+                            </div>
+                            <!-- <textarea class="form-control" rows="14" id="card-contents" wrap="off"></textarea> -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-12 col-lg-4">
+                <!--<h3>Preview</h3>-->
+                <div id="preview-container" class="preview-container">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal" id="print-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Printing generated cards</h4>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        <li>The generated cards open in a new tab or window. If you don't see any new tab or window, check your popup and script blockers. If that does not help, try disabling all addons.</li>
+                        <li>Make sure your printer uses the correct paper size (same as in the editor).</li>
+                        <li>Enable double sided printing (flip on long edge).</li>
+                        <li>Do not scale the document to fit the page. Print at original size.</li>
+                        <li>
+                            Some printers are not very precise (pages print slightly shifted or rotated) and the cards will not line up with the card backs.
+                            If this is the case, there's not much you can do.
+                            Try making the page background the same color as the cards, so that you won't get any white edges on the card.
+                            If that does not help, try a different printer or print single-sided.
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Ok, got it</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
