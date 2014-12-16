@@ -436,6 +436,13 @@ $(document).ready(function () {
 	$("#default-title-size").change(ui_change_default_title_size);
 	$("#small-icons").change(ui_change_default_icon_size);
 
+  MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+  var observer = new MutationObserver(ui_change_card_contents);
+  observer.observe(document.getElementById("card-contents"), {
+    childList:  true,
+    subtree:    true
+  });
+
 	$(".icon-select-button").click(ui_select_icon);
 
 	var filters = [
